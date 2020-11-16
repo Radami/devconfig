@@ -1,0 +1,7 @@
+[user]
+	name = radu
+	email = radu.patulescu@gmail.com
+[core]
+    editor = vim
+    excludesfile = ~/.gitignore
+    preloadindex = true

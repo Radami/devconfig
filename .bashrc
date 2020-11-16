@@ -40,43 +40,38 @@ case "$TERM" in
     xterm-color|*-256color) color_prompt=yes;;
 esac
 
-###### Prompt set-up
+# uncomment for a colored prompt, if the terminal has the capability; turned
+# off by default to not distract the user: the focus in a terminal window
+# should be on the output of commands, not on the prompt
+#force_color_prompt=yes
 
-parse_git_branch() {
-     git branch 2> /dev/null | sed -e '/^[^*]/d' -e 's/* \(.*\)/(\1)/'
-}
-
-export CLICOLOR=1
-
-# Set default colors
-export LSCOLORS=ExFxBxDxCxegedabagacad
-
-##### VENV
-function virtualenv_info(){
-    # Get Virtual Env
-    if [[ -n "$VIRTUAL_ENV" ]]; then
-        # Strip out the path and just leave the env name
-        venv="${VIRTUAL_ENV##*/}"
+if [ -n "$force_color_prompt" ]; then
+    if [ -x /usr/bin/tput ] && tput setaf 1 >&/dev/null; then
+	# We have color support; assume it's compliant with Ecma-48
+	# (ISO/IEC-6429). (Lack of such support is extremely rare, and such
+	# a case would tend to support setf rather than setaf.)
+	color_prompt=yes
     else
-        # In case you don't have one activated
-        venv=''
+	color_prompt=
     fi
-    [[ -n "$venv" ]] && echo "($venv) "
+fi
+
+# Add git branch if its present to PS1
+parse_git_branch() {
+ git branch 2> /dev/null | sed -e '/^[^*]/d' -e 's/* \(.*\)/(\1)/'
 }
+if [ "$color_prompt" = yes ]; then
+ PS1='${debian_chroot:+($debian_chroot)}\[\033[01;32m\]\u@\h\[\033[00m\]:\[\033[01;34m\]\w\[\033[01;31m\]$(parse_git_branch)\[\033[00m\]\$ '
+else
+ PS1='${debian_chroot:+($debian_chroot)}\u@\h:\w$(parse_git_branch)\$ '
+fi
 
-# disable the default virtualenv prompt change
-export VIRTUAL_ENV_DISABLE_PROMPT=1
-
-return_prompt() {
-   GIT_BRANCH=$(parse_git_branch)
-   if [[ -n $GIT_BRANCH && $GIT_BRANCH == "(master)" ]]; then 
-	PS1="\$(virtualenv_info)\[\033[36m\]\u\[\033[m\]@\[\033[32m\]\h:\[\033[33;1m\]\w\[\033[1;31m\] \$(parse_git_branch)\[\033[00m\] $ "
-   else
-	PS1="\$(virtualenv_info)\[\033[36m\]\u\[\033[m\]@\[\033[32m\]\h:\[\033[33;1m\]\w\[\033[1;30m\] \$(parse_git_branch)\[\033[00m\] $ "
-   fi
-}
-export PROMPT_COMMAND=return_prompt
-
+#if [ "$color_prompt" = yes ]; then
+#    PS1='${debian_chroot:+($debian_chroot)}\[\033[01;32m\]\u@\h\[\033[00m\]:\[\033[01;34m\]\w\[\033[00m\]\$ '
+#else
+#    PS1='${debian_chroot:+($debian_chroot)}\u@\h:\w\$ '
+#fi
+#unset color_prompt force_color_prompt
 
 # If this is an xterm set the title to user@host:dir
 case "$TERM" in
@@ -130,5 +125,3 @@ if ! shopt -oq posix; then
     . /etc/bash_completion
   fi
 fi
-
-
