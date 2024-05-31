@@ -5,3 +5,5 @@
     editor = vim
     excludesfile = ~/.gitignore
     preloadindex = true
+[init]
+	defaultBranch = main
