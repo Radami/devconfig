@@ -7,7 +7,10 @@
 *.swo
 
 # Python
-__pycache__
+*pycache__
+
+#Django
+*.sqlite3
 
 # VSCode
 *.vscode
